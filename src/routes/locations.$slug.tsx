@@ -1,9 +1,9 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { LOCATIONS } from "@/lib/locations";
+import { LOCATIONS, type Location } from "@/lib/locations";
 
 export const Route = createFileRoute("/locations/$slug")({
-  loader: ({ params }) => {
+  loader: ({ params }): Location => {
     const loc = LOCATIONS[params.slug];
     if (!loc) throw notFound();
     return loc;
