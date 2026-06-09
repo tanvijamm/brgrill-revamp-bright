@@ -31,7 +31,7 @@ export const Route = createFileRoute("/locations/$slug")({
 });
 
 function LocationPage() {
-  const loc = Route.useLoaderData();
+  const loc = Route.useLoaderData() as Location;
   const [tab, setTab] = useState(loc.menus[0].id);
   const active = loc.menus.find((m) => m.id === tab) ?? loc.menus[0];
 
