@@ -7,11 +7,12 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { OrderOnlineButton } from "../components/OrderOnlineButton";
-import brgLogo from "../assets/brg-logo.png.asset.json";
+import { VipClubButton, VipClubProvider } from "../components/VipClubPopup";
+import { BRG_LOGO_SRC } from "../lib/brg-logo";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -76,41 +77,107 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const NAV = [
-  { to: "/", label: "Home" },
+const NAV_LINKS = [
+  { to: "/", label: "Home", exact: true },
   { to: "/locations", label: "Locations" },
-  { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
   { to: "/giftcards", label: "Gift Cards" },
 ] as const;
 
+const ABOUT_LINKS = [
+  { to: "/about", label: "Our Story" },
+  { to: "/employment", label: "Join Our Team" },
+] as const;
+
 function Header() {
   const [open, setOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const aboutRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!aboutOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (aboutRef.current && !aboutRef.current.contains(e.target as Node)) setAboutOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [aboutOpen]);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
-        <Link to="/" className="-ml-2 flex shrink-0 items-center sm:-ml-3" onClick={() => setOpen(false)} aria-label="Blue Ridge Grill — Home">
+        <Link to="/" className="flex shrink-0 items-center" onClick={() => setOpen(false)} aria-label="Blue Ridge Grill — Home">
           <img
-            src={brgLogo.url}
+            src={BRG_LOGO_SRC}
             alt="Blue Ridge Grill"
             className="h-10 w-auto sm:h-12 md:h-14"
             loading="eager"
           />
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
-          {NAV.map((n) => (
+          {NAV_LINKS.slice(0, 2).map((n) => (
             <Link
               key={n.to}
               to={n.to}
               className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
               activeProps={{ className: "rounded-md px-3 py-2 text-sm font-semibold text-primary bg-accent" }}
-              activeOptions={{ exact: n.to === "/" }}
+              activeOptions={{ exact: "exact" in n && n.exact }}
             >
               {n.label}
             </Link>
           ))}
+          <div className="relative" ref={aboutRef}>
+            <button
+              type="button"
+              onClick={() => setAboutOpen((v) => !v)}
+              className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+              aria-expanded={aboutOpen}
+              aria-haspopup="true"
+            >
+              About
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform ${aboutOpen ? "rotate-180" : ""}`}>
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            {aboutOpen && (
+              <div className="absolute left-0 top-full z-50 mt-1 min-w-[11rem] rounded-md border border-border bg-background py-1 shadow-lg">
+                {ABOUT_LINKS.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setAboutOpen(false)}
+                    className="block px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-accent hover:text-foreground"
+                    activeProps={{ className: "block px-4 py-2 text-sm font-semibold bg-accent text-primary" }}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <a
+                  href="/#reviews"
+                  onClick={() => setAboutOpen(false)}
+                  className="block px-4 py-2 text-sm font-medium text-foreground/80 hover:bg-accent hover:text-foreground"
+                >
+                  Reviews
+                </a>
+              </div>
+            )}
+          </div>
+          {NAV_LINKS.slice(2).map((n) => (
+            <Link
+              key={n.to}
+              to={n.to}
+              className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+              activeProps={{ className: "rounded-md px-3 py-2 text-sm font-semibold text-primary bg-accent" }}
+              activeOptions={{ exact: "exact" in n && n.exact }}
+            >
+              {n.label}
+            </Link>
+          ))}
+          <VipClubButton
+            className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-foreground cursor-pointer"
+          />
           <OrderOnlineButton
-            className="ml-2 rounded-md px-4 py-2 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90 cursor-pointer"
+            className="ml-1 rounded-md px-4 py-2 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90 cursor-pointer"
             style={{ backgroundColor: "var(--brand-green)", color: "var(--brand-dark)" }}
           />
         </nav>
@@ -123,11 +190,28 @@ function Header() {
       {open && (
         <div className="border-t border-border bg-background md:hidden">
           <div className="space-y-1 px-4 py-3">
-            {NAV.map((n) => (
-              <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" activeProps={{ className: "block rounded-md px-3 py-2 text-sm font-semibold bg-accent text-primary" }} activeOptions={{ exact: n.to === "/" }}>
-                {n.label}
+            <Link to="/" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" activeProps={{ className: "block rounded-md px-3 py-2 text-sm font-semibold bg-accent text-primary" }} activeOptions={{ exact: true }}>
+              Home
+            </Link>
+            <Link to="/locations" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" activeProps={{ className: "block rounded-md px-3 py-2 text-sm font-semibold bg-accent text-primary" }}>
+              Locations
+            </Link>
+            <div className="px-3 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">About</div>
+            {ABOUT_LINKS.map((link) => (
+              <Link key={link.to} to={link.to} onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" activeProps={{ className: "block rounded-md px-3 py-2 text-sm font-semibold bg-accent text-primary" }}>
+                {link.label}
               </Link>
             ))}
+            <a href="/#reviews" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent">
+              Reviews
+            </a>
+            <Link to="/contact" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" activeProps={{ className: "block rounded-md px-3 py-2 text-sm font-semibold bg-accent text-primary" }}>
+              Contact
+            </Link>
+            <Link to="/giftcards" onClick={() => setOpen(false)} className="block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent" activeProps={{ className: "block rounded-md px-3 py-2 text-sm font-semibold bg-accent text-primary" }}>
+              Gift Cards
+            </Link>
+            <VipClubButton onClick={() => setOpen(false)} className="block w-full rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-accent cursor-pointer" />
             <OrderOnlineButton className="mt-2 block w-full rounded-md px-3 py-2 text-center text-sm font-semibold cursor-pointer" style={{ backgroundColor: "var(--brand-green)", color: "var(--brand-dark)" }} />
           </div>
         </div>
@@ -156,8 +240,11 @@ function Footer() {
           <h4 className="text-sm font-semibold uppercase tracking-wider opacity-70">Explore</h4>
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link to="/about" className="hover:underline">About</Link></li>
+            <li><Link to="/employment" className="hover:underline">Employment</Link></li>
+            <li><a href="/#reviews" className="hover:underline">Reviews</a></li>
             <li><Link to="/contact" className="hover:underline">Contact</Link></li>
             <li><Link to="/giftcards" className="hover:underline">Gift Cards</Link></li>
+            <li><VipClubButton className="hover:underline cursor-pointer text-left" /></li>
           </ul>
         </div>
         <div>
@@ -174,11 +261,13 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1"><Outlet /></main>
-        <Footer />
-      </div>
+      <VipClubProvider>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <main className="flex-1"><Outlet /></main>
+          <Footer />
+        </div>
+      </VipClubProvider>
     </QueryClientProvider>
   );
 }

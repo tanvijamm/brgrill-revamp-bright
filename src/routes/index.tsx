@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LOCATION_LIST } from "@/lib/locations";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { OrderOnlineButton } from "@/components/OrderOnlineButton";
+import { ReviewsSection } from "@/components/ReviewsSection";
+import { VipClubButton } from "@/components/VipClubPopup";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -80,6 +82,8 @@ function Index() {
         </div>
       </section>
 
+      <ReviewsSection />
+
       {/* Get Hooked / Info */}
       <section style={{ backgroundColor: "var(--brand-cream)" }}>
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 lg:px-8">
@@ -105,6 +109,18 @@ function Index() {
             <InfoCard title="Gift Cards">
               Available in any denomination. <Link to="/giftcards" className="font-semibold underline" style={{ color: "var(--brand-blue)" }}>Purchase online</Link> or in any of our restaurants.
             </InfoCard>
+            <div className="rounded-xl border-2 p-5 shadow-sm" style={{ borderColor: "var(--brand-green)", backgroundColor: "color-mix(in oklab, var(--brand-green) 10%, white)" }}>
+              <h3 className="font-display text-lg font-semibold" style={{ color: "var(--brand-blue)" }}>BRG VIP Club</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Join for a free appetizer, birthday dessert, and exclusive specials at your favorite location.
+              </p>
+              <VipClubButton
+                className="mt-3 rounded-md px-4 py-2 text-sm font-semibold cursor-pointer"
+                style={{ backgroundColor: "var(--brand-green)", color: "var(--brand-dark)" }}
+              >
+                Join free →
+              </VipClubButton>
+            </div>
           </div>
         </div>
       </section>

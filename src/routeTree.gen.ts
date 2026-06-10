@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as GiftcardsRouteImport } from './routes/giftcards'
+import { Route as EmploymentRouteImport } from './routes/employment'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -25,6 +26,11 @@ const LocationsRoute = LocationsRouteImport.update({
 const GiftcardsRoute = GiftcardsRouteImport.update({
   id: '/giftcards',
   path: '/giftcards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmploymentRoute = EmploymentRouteImport.update({
+  id: '/employment',
+  path: '/employment',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/employment': typeof EmploymentRoute
   '/giftcards': typeof GiftcardsRoute
   '/locations': typeof LocationsRouteWithChildren
   '/locations/$slug': typeof LocationsSlugRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/employment': typeof EmploymentRoute
   '/giftcards': typeof GiftcardsRoute
   '/locations/$slug': typeof LocationsSlugRoute
   '/locations': typeof LocationsIndexRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/employment': typeof EmploymentRoute
   '/giftcards': typeof GiftcardsRoute
   '/locations': typeof LocationsRouteWithChildren
   '/locations/$slug': typeof LocationsSlugRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/employment'
     | '/giftcards'
     | '/locations'
     | '/locations/$slug'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/employment'
     | '/giftcards'
     | '/locations/$slug'
     | '/locations'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/contact'
+    | '/employment'
     | '/giftcards'
     | '/locations'
     | '/locations/$slug'
@@ -113,6 +125,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  EmploymentRoute: typeof EmploymentRoute
   GiftcardsRoute: typeof GiftcardsRoute
   LocationsRoute: typeof LocationsRouteWithChildren
 }
@@ -131,6 +144,13 @@ declare module '@tanstack/react-router' {
       path: '/giftcards'
       fullPath: '/giftcards'
       preLoaderRoute: typeof GiftcardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employment': {
+      id: '/employment'
+      path: '/employment'
+      fullPath: '/employment'
+      preLoaderRoute: typeof EmploymentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -189,9 +209,20 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  EmploymentRoute: EmploymentRoute,
   GiftcardsRoute: GiftcardsRoute,
   LocationsRoute: LocationsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
