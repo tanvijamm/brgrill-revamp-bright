@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LOCATION_LIST } from "@/lib/locations";
+import { HeroCarousel } from "@/components/HeroCarousel";
+import { OrderOnlineButton } from "@/components/OrderOnlineButton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,12 +32,16 @@ function Index() {
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link to="/locations" className="rounded-md px-5 py-3 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90" style={{ backgroundColor: "var(--brand-blue)", color: "white" }}>View Menus & Locations</Link>
-              <a href="https://order.toasttab.com/online/blue-ridge-grill" target="_blank" rel="noreferrer" className="rounded-md border-2 px-5 py-3 text-sm font-semibold transition-colors hover:bg-accent" style={{ borderColor: "var(--brand-green)", color: "var(--brand-dark)" }}>Order Online</a>
+              <OrderOnlineButton
+                forceModal
+                className="rounded-md border-2 px-5 py-3 text-sm font-semibold transition-colors hover:bg-accent cursor-pointer"
+                style={{ borderColor: "var(--brand-green)", color: "var(--brand-dark)" }}
+              />
             </div>
           </div>
           <div className="relative">
             <div className="aspect-[4/5] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5">
-              <img src="https://brgrill.com/wp-content/uploads/2015/07/fisherman.jpg" alt="Fisherman at sunrise" className="h-full w-full object-cover" loading="eager"/>
+              <HeroCarousel />
             </div>
             <div className="absolute -bottom-6 -left-6 hidden rounded-xl px-5 py-4 shadow-xl md:block" style={{ backgroundColor: "var(--brand-green)" }}>
               <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--brand-dark)" }}>Get Hooked</div>

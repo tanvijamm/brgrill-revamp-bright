@@ -32,8 +32,17 @@ export const Route = createFileRoute("/locations/$slug")({
 
 function LocationPage() {
   const loc = Route.useLoaderData() as Location;
-  const [tab, setTab] = useState(loc.menus[0].id);
-  const active = loc.menus.find((m) => m.id === tab) ?? loc.menus[0];
+
+  // Build the full menu list: standard menus + wine/spirits + bar happy hour + catering note
+  const allTabs = [
+    ...loc.menus.filter((m) => m.pdf),
+    { id: "wine", label: "Wine & Spirits", pdf: loc.wineSpiritsPdf },
+    { id: "happyhour", label: "Bar Happy Hour", pdf: loc.barHHPdf },
+    ...loc.menus.filter((m) => !m.pdf),
+  ];
+
+  const [tab, setTab] = useState(allTabs[0].id);
+  const active = allTabs.find((m) => m.id === tab) ?? allTabs[0];
 
   return (
     <>
@@ -71,14 +80,14 @@ function LocationPage() {
         {/* Menus */}
         <div>
           <h2 className="font-display text-3xl font-bold">Menus</h2>
-          <p className="mt-1 text-muted-foreground">Embedded directly from our printed menus. Tap a tab to view.</p>
+          <p className="mt-1 text-muted-foreground">Pulled directly from our printed menus. Scroll to browse, or open the PDF in a new tab.</p>
 
           <div className="mt-6 flex flex-wrap gap-2 border-b">
-            {loc.menus.map((m) => {
+            {allTabs.map((m) => {
               const isActive = m.id === tab;
               return (
                 <button key={m.id} onClick={() => setTab(m.id)}
-                  className="relative -mb-px rounded-t-md px-4 py-2 text-sm font-semibold transition-colors"
+                  className="relative -mb-px rounded-t-md px-4 py-2 text-sm font-semibold transition-colors cursor-pointer"
                   style={{
                     color: isActive ? "var(--brand-blue)" : "var(--color-muted-foreground)",
                     borderBottom: isActive ? "3px solid var(--brand-green)" : "3px solid transparent",
@@ -91,34 +100,20 @@ function LocationPage() {
 
           <div className="mt-6">
             {active.pdf ? (
-              <div>
-                <div className="flex flex-wrap gap-3 pb-3 text-sm">
-                  <a href={active.pdf} target="_blank" rel="noreferrer" className="rounded-md px-3 py-1.5 font-semibold text-white" style={{ backgroundColor: "var(--brand-blue)" }}>Open {active.label} PDF</a>
-                  {active.gfPdf && (
-                    <a href={active.gfPdf} target="_blank" rel="noreferrer" className="rounded-md border-2 px-3 py-1.5 font-semibold" style={{ borderColor: "var(--brand-green)", color: "var(--brand-dark)" }}>Gluten-Free {active.label}</a>
-                  )}
-                </div>
-                <div className="overflow-hidden rounded-xl border bg-muted">
-                  <iframe
-                    key={active.pdf}
-                    src={`${active.pdf}#view=FitH`}
-                    title={`${loc.name} ${active.label} menu`}
-                    className="h-[80vh] w-full"
-                  />
-                </div>
-              </div>
+              <MenuViewer
+                key={active.pdf}
+                pdf={active.pdf}
+                gfPdf={"gfPdf" in active ? (active as { gfPdf?: string }).gfPdf : undefined}
+                label={active.label}
+                location={loc.name}
+              />
             ) : (
               <div className="rounded-xl border bg-card p-8 text-center">
                 <h3 className="font-display text-xl font-semibold">{active.label}</h3>
-                <p className="mt-2 text-muted-foreground">{active.note}</p>
+                <p className="mt-2 text-muted-foreground">{"note" in active ? active.note : ""}</p>
                 <a href={loc.phoneHref} className="mt-4 inline-block rounded-md px-4 py-2 text-sm font-semibold text-white" style={{ backgroundColor: "var(--brand-blue)" }}>Call {loc.phone}</a>
               </div>
             )}
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <a href={loc.wineSpiritsPdf} target="_blank" rel="noreferrer" className="rounded-md border px-3 py-1.5 font-semibold hover:bg-accent">Wine & Spirits</a>
-            <a href={loc.barHHPdf} target="_blank" rel="noreferrer" className="rounded-md border px-3 py-1.5 font-semibold hover:bg-accent">Bar Happy Hour</a>
           </div>
         </div>
 
@@ -139,6 +134,52 @@ function LocationPage() {
   );
 }
 
+function MenuViewer({ pdf, gfPdf, label, location }: { pdf: string; gfPdf?: string; label: string; location: string }) {
+  const [useGoogle, setUseGoogle] = useState(false);
+  const src = useGoogle
+    ? `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdf)}`
+    : `${pdf}#view=FitH&toolbar=1`;
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2 pb-3 text-sm">
+        <a href={pdf} target="_blank" rel="noreferrer" className="rounded-md px-3 py-1.5 font-semibold text-white" style={{ backgroundColor: "var(--brand-blue)" }}>Open {label} PDF ↗</a>
+        {gfPdf && (
+          <a href={gfPdf} target="_blank" rel="noreferrer" className="rounded-md border-2 px-3 py-1.5 font-semibold" style={{ borderColor: "var(--brand-green)", color: "var(--brand-dark)" }}>Gluten-Free {label} ↗</a>
+        )}
+        <button
+          type="button"
+          onClick={() => setUseGoogle((v) => !v)}
+          className="ml-auto rounded-md border px-3 py-1.5 text-xs font-semibold hover:bg-accent"
+        >
+          {useGoogle ? "Use native PDF viewer" : "Trouble viewing? Use Google viewer"}
+        </button>
+      </div>
+      <div
+        className="overflow-auto rounded-xl border bg-muted"
+        style={{ height: "min(85vh, 1200px)" }}
+      >
+        <object
+          data={src}
+          type="application/pdf"
+          className="block h-full w-full"
+          aria-label={`${location} ${label} menu`}
+        >
+          <iframe
+            src={src}
+            title={`${location} ${label} menu`}
+            className="block h-full w-full border-0"
+          />
+        </object>
+      </div>
+      <p className="mt-2 text-center text-xs text-muted-foreground">
+        Menu PDF served from brgrill.com. If it doesn't load,{" "}
+        <a href={pdf} target="_blank" rel="noreferrer" className="font-semibold underline" style={{ color: "var(--brand-blue)" }}>open it directly</a>.
+      </p>
+    </div>
+  );
+}
+
 function Fact({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm">
@@ -147,3 +188,4 @@ function Fact({ title, children }: { title: string; children: React.ReactNode })
     </div>
   );
 }
+

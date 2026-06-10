@@ -10,6 +10,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { OrderOnlineButton } from "../components/OrderOnlineButton";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -106,14 +107,10 @@ function Header() {
               {n.label}
             </Link>
           ))}
-          <a
-            href="https://order.toasttab.com/online/blue-ridge-grill"
-            target="_blank" rel="noreferrer"
-            className="ml-2 rounded-md px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
+          <OrderOnlineButton
+            className="ml-2 rounded-md px-4 py-2 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90 cursor-pointer"
             style={{ backgroundColor: "var(--brand-green)", color: "var(--brand-dark)" }}
-          >
-            Order Online
-          </a>
+          />
         </nav>
         <button onClick={() => setOpen(!open)} className="rounded-md p-2 md:hidden" aria-label="Menu">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -129,7 +126,7 @@ function Header() {
                 {n.label}
               </Link>
             ))}
-            <a href="https://order.toasttab.com/online/blue-ridge-grill" target="_blank" rel="noreferrer" className="mt-2 block rounded-md px-3 py-2 text-center text-sm font-semibold" style={{ backgroundColor: "var(--brand-green)", color: "var(--brand-dark)" }}>Order Online</a>
+            <OrderOnlineButton className="mt-2 block w-full rounded-md px-3 py-2 text-center text-sm font-semibold cursor-pointer" style={{ backgroundColor: "var(--brand-green)", color: "var(--brand-dark)" }} />
           </div>
         </div>
       )}
