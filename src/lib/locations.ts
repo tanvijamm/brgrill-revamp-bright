@@ -18,7 +18,7 @@ export type Location = {
 const COMMON_MENUS = (prefix: string, kidsFile: string): MenuTab[] => [
   { id: "lunch", label: "Lunch", pdf: `https://brgrill.com/wp-content/uploads/${prefix}Lunch.pdf`, gfPdf: `https://brgrill.com/wp-content/uploads/${prefix}GFLunch.pdf` },
   { id: "dinner", label: "Dinner", pdf: `https://brgrill.com/wp-content/uploads/${prefix}Dinner.pdf`, gfPdf: `https://brgrill.com/wp-content/uploads/${prefix}GFDinner.pdf` },
-  { id: "brunch", label: "Brunch", pdf: `https://brgrill.com/wp-content/uploads/${prefix}Brunch.pdf` },
+  { id: "brunch", label: "Brunch", pdf: `https://brgrill.com/wp-content/uploads/${prefix}BrunchDrinks.pdf` },
   { id: "kids", label: "Kids", pdf: `https://brgrill.com/wp-content/uploads/${kidsFile}` },
   { id: "catering", label: "Bulk Catering To-Go", note: "Available at all locations. Ask your server or call ahead for full catering details." },
 ];
