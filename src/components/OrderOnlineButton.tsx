@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouterState } from "@tanstack/react-router";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const CHOWNOW_URL =
   "https://order.chownow.com/order/18342/locations?add_cn_ordering_class=true";
@@ -8,16 +9,18 @@ type Props = {
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
-  /** Force modal regardless of route (e.g. for embedded hero CTA). */
+  /** Force modal regardless of route (e.g. for embedded hero CTA). Ignored on mobile. */
   forceModal?: boolean;
 };
 
 export function OrderOnlineButton({ className, style, children, forceModal }: Props) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
   const isHome = pathname === "/";
-  const useModal = forceModal ?? isHome;
+  // On mobile, always open in a new tab — no popup overlay.
+  const useModal = !isMobile && (forceModal ?? isHome);
 
   if (useModal) {
     return (

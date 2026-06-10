@@ -135,46 +135,62 @@ function LocationPage() {
 }
 
 function MenuViewer({ pdf, gfPdf, label, location }: { pdf: string; gfPdf?: string; label: string; location: string }) {
-  const [useGoogle, setUseGoogle] = useState(false);
-  const src = useGoogle
-    ? `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdf)}`
-    : `${pdf}#view=FitH&toolbar=1`;
+  const [useNative, setUseNative] = useState(false);
+  const googleSrc = (url: string) =>
+    `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+  const src = useNative ? `${pdf}#view=FitH&toolbar=1` : googleSrc(pdf);
+
+  // Use Google's viewer for "open in new tab" — direct hotlinking to brgrill.com
+  // PDFs can be blocked by some browsers / popup heuristics. The Google viewer
+  // page is a normal HTML page and opens reliably.
+  const openInNewTab = (url: string) => googleSrc(url);
 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 pb-3 text-sm">
-        <a href={pdf} target="_blank" rel="noreferrer" className="rounded-md px-3 py-1.5 font-semibold text-white" style={{ backgroundColor: "var(--brand-blue)" }}>Open {label} PDF ↗</a>
+        <a
+          href={openInNewTab(pdf)}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="rounded-md px-3 py-1.5 font-semibold text-white"
+          style={{ backgroundColor: "var(--brand-blue)" }}
+        >
+          Open {label} PDF ↗
+        </a>
         {gfPdf && (
-          <a href={gfPdf} target="_blank" rel="noreferrer" className="rounded-md border-2 px-3 py-1.5 font-semibold" style={{ borderColor: "var(--brand-green)", color: "var(--brand-dark)" }}>Gluten-Free {label} ↗</a>
+          <a
+            href={openInNewTab(gfPdf)}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="rounded-md border-2 px-3 py-1.5 font-semibold"
+            style={{ borderColor: "var(--brand-green)", color: "var(--brand-dark)" }}
+          >
+            Gluten-Free {label} ↗
+          </a>
         )}
         <button
           type="button"
-          onClick={() => setUseGoogle((v) => !v)}
+          onClick={() => setUseNative((v) => !v)}
           className="ml-auto rounded-md border px-3 py-1.5 text-xs font-semibold hover:bg-accent"
         >
-          {useGoogle ? "Use native PDF viewer" : "Trouble viewing? Use Google viewer"}
+          {useNative ? "Use Google viewer (recommended)" : "Try native PDF viewer"}
         </button>
       </div>
       <div
         className="overflow-auto rounded-xl border bg-muted"
         style={{ height: "min(85vh, 1200px)" }}
       >
-        <object
-          data={src}
-          type="application/pdf"
-          className="block h-full w-full"
-          aria-label={`${location} ${label} menu`}
-        >
-          <iframe
-            src={src}
-            title={`${location} ${label} menu`}
-            className="block h-full w-full border-0"
-          />
-        </object>
+        <iframe
+          key={src}
+          src={src}
+          title={`${location} ${label} menu`}
+          className="block h-full w-full border-0"
+          loading="lazy"
+        />
       </div>
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Menu PDF served from brgrill.com. If it doesn't load,{" "}
-        <a href={pdf} target="_blank" rel="noreferrer" className="font-semibold underline" style={{ color: "var(--brand-blue)" }}>open it directly</a>.
+        Menu PDF served from brgrill.com via Google Docs Viewer. If it doesn't load,{" "}
+        <a href={openInNewTab(pdf)} target="_blank" rel="noreferrer noopener" className="font-semibold underline" style={{ color: "var(--brand-blue)" }}>open it in a new tab</a>.
       </p>
     </div>
   );

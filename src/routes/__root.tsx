@@ -11,6 +11,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { OrderOnlineButton } from "../components/OrderOnlineButton";
+import brgLogo from "../assets/brg-logo.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -87,13 +88,14 @@ function Header() {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-          <span className="font-display text-2xl font-bold leading-none tracking-tight">
-            <span style={{ color: "var(--brand-blue)" }}>Blue</span>
-            <span style={{ color: "var(--brand-green)" }}>Ridge</span>
-            <span style={{ color: "var(--brand-blue)" }}>Grill</span>
-          </span>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
+        <Link to="/" className="flex shrink-0 items-center" onClick={() => setOpen(false)} aria-label="Blue Ridge Grill — Home">
+          <img
+            src={brgLogo.url}
+            alt="Blue Ridge Grill"
+            className="h-10 w-auto sm:h-12 md:h-14"
+            loading="eager"
+          />
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           {NAV.map((n) => (
