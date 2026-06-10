@@ -89,7 +89,7 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2.5 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
-        <Link to="/" className="flex shrink-0 items-center" onClick={() => setOpen(false)} aria-label="Blue Ridge Grill — Home">
+        <Link to="/" className="-ml-2 flex shrink-0 items-center sm:-ml-3" onClick={() => setOpen(false)} aria-label="Blue Ridge Grill — Home">
           <img
             src={brgLogo.url}
             alt="Blue Ridge Grill"
